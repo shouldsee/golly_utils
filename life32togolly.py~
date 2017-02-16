@@ -1,0 +1,494 @@
+# HenselNotation->WeightedLife2.0.py
+# by Eric Goldstein, July 7 2012 (updated for Golly 2.5+ on March 7, 2014)
+
+#  Most of the comments and code are from HenselNotation->Ruletable.py
+
+# This script builds a Golly rule for Life32's non-totalistic notation.
+# The notation was originally adapted from Alan Hensel"s work on that subject.
+
+dialog_box_message =  '''This script will allow you to enter the non-totalistic rule notation
+used by Johan Bontes' Life32 program, based on work by Alan Hensel.
+Please look in the script file to see how the notation works.
+
+
+An example rule is given below as a default.  Rules are case-insensitive.
+B2a/S12, S12/B2a, and 12/2a are valid and equivalent. 
+
+Inverse specifications are allowed.  For example, David Bell's Just Friends rule can be
+expressed B2-a/S12 indicating that all B2 arrangements are included except 2a.
+
+Enter a rule here:
+   '''
+
+# Minor note:
+# Unfortunately, Alan Hensel's notation for r and y are swapped in Life32.   
+# Life32's rule dialog box shows the correct arrangements, but they are swapped in the implementation.
+# What should work as 3r, 4r, and 5r, actually work as 3y, 4y, and 5y, and vice versa.
+# This script swaps the definition of r and y just like Life32 does, so that patterns intended to be run
+# on Life32 will run the same way in Golly. 
+
+
+# Golly"s ruleTable format use the following notation: 
+#  C,N,NE,E,SE,S,SW,W,NW,C'
+# where C is the current state, and C' is the new state, and
+# where the eight neighbors in the Moore neighborhood are as shown below.
+
+#     NW  N  NE
+#     W   C  E 
+#     SW  S  SE
+
+# The lookup table below for Life32"s non-totalistic notation uses the eight neighbor values:
+#   N,NE,E,SE,S,SW,W,NW
+
+
+
+notationdict = {
+                 "1e" : [1,0,0,0,0,0,0,0],  #   N
+                 "1c" : [0,1,0,0,0,0,0,0],  #   NE
+                 "2a" : [1,1,0,0,0,0,0,0],  #   N,  NE
+                 "2e" : [1,0,1,0,0,0,0,0],  #   N,  E
+                 "2k" : [1,0,0,1,0,0,0,0],  #   N,  SE
+                 "2i" : [1,0,0,0,1,0,0,0],  #   N,  S
+                 "2c" : [0,1,0,1,0,0,0,0],  #   NE, SE
+                 "2v" : [0,1,0,0,0,1,0,0],  #   NE, SW
+                 "3a" : [1,1,1,0,0,0,0,0],  #   N,  NE, E
+                 "3v" : [1,1,0,1,0,0,0,0],  #   N,  NE, SE
+                 "3y" : [1,1,0,0,1,0,0,0],  #   N,  NE, S      (3r in non-swapped notation)
+                 "3q" : [1,1,0,0,0,1,0,0],  #   N,  NE, SW
+                 "3j" : [1,1,0,0,0,0,1,0],  #   N,  NE, W
+                 "3i" : [1,1,0,0,0,0,0,1],  #   N,  NE, NW
+                 "3e" : [1,0,1,0,1,0,0,0],  #   N,  E,  S
+                 "3k" : [1,0,1,0,0,1,0,0],  #   N,  E,  SW
+                 "3r" : [1,0,0,1,0,1,0,0],  #   N,  SE, SW     (3y in non-swapped notation)
+                 "3c" : [0,1,0,1,0,1,0,0],  #   NE, SE, SW
+                 "4a" : [1,1,1,1,0,0,0,0],  #   N,  NE, E,  SE
+                 "4y" : [1,1,1,0,1,0,0,0],  #   N,  NE, E,  S  (4r in non-swapped notation)
+                 "4q" : [1,1,1,0,0,1,0,0],  #   N,  NE, E,  SW
+                 "4i" : [1,1,0,1,1,0,0,0],  #   N,  NE, SE, S
+                 "4r" : [1,1,0,1,0,1,0,0],  #   N,  NE, SE, SW (4y in non-swapped notation)
+                 "4k" : [1,1,0,1,0,0,1,0],  #   N,  NE, SE, W
+                 "4v" : [1,1,0,1,0,0,0,1],  #   N,  NE, SE, NW
+                 "4z" : [1,1,0,0,1,1,0,0],  #   N,  NE, S,  SW
+                 "4j" : [1,1,0,0,1,0,1,0],  #   N,  NE, S,  W
+                 "4t" : [1,1,0,0,1,0,0,1],  #   N,  NE, S,  NW
+                 "4w" : [1,1,0,0,0,1,1,0],  #   N,  NE, SW, W
+                 "4e" : [1,0,1,0,1,0,1,0],  #   N,  E,  S,  W
+                 "4c" : [0,1,0,1,0,1,0,1],  #   NE, SE, SW, NW
+                 "5a" : [0,0,0,1,1,1,1,1],  #   SE, S,  SW, W,  NW
+                 "5v" : [0,0,1,0,1,1,1,1],  #   E,  S,  SW, W,  NW
+                 "5y" : [0,0,1,1,0,1,1,1],  #   E,  SE, SW, W,  NW (5r in non-swapped notation)
+                 "5q" : [0,0,1,1,1,0,1,1],  #   E,  SE, S,  W,  NW
+                 "5j" : [0,0,1,1,1,1,0,1],  #   E,  SE, S,  SW, NW
+                 "5i" : [0,0,1,1,1,1,1,0],  #   E,  SE, S,  SW, W
+                 "5e" : [0,1,0,1,0,1,1,1],  #   NE, SE, SW, W,  NW,
+                 "5k" : [0,1,0,1,1,0,1,1],  #   NE, SE, S,  W,  NW
+                 "5r" : [0,1,1,0,1,0,1,1],  #   NE, E,  S,  W, NW  (5y in non-swapped notation)
+                 "5c" : [1,0,1,0,1,0,1,1],  #   N,  E,  S,  W,  NW
+                 "6a" : [0,0,1,1,1,1,1,1],  #   E,  SE, S,  SW, W,  NW
+                 "6e" : [0,1,0,1,1,1,1,1],  #   NE, SE, S,  SW, W,  NW
+                 "6k" : [0,1,1,0,1,1,1,1],  #   NE, E,  S,  SW, W,  NW
+                 "6i" : [0,1,1,1,0,1,1,1],  #   NE, E,  SE, SW, W,  NW
+                 "6c" : [1,0,1,0,1,1,1,1],  #   N,  E,  S,  SW, W,  NW
+                 "6v" : [1,0,1,1,1,0,1,1],  #   N,  E,  SE, S,  W,  NW
+                 "7e" : [0,1,1,1,1,1,1,1],  #   NE, E,  SE, S,  SW, W,  NW
+                 "7c" : [1,0,1,1,1,1,1,1]   #   N,  E,  SE, S,  SW, W,  NW
+               
+
+                }
+
+#  Here's a graphical depiction of the notation.
+dummyvariable = '''
+x = 147, y = 97, rule = B/S012345678
+21b3o6b5o5bo3bo6b3o6b5o5bo3bo5bo3bo6b3o10bo5b4o6b5o5bobobo5b5o$20bo3bo
+5bo9bo2bo6bo3bo7bo7bo3bo5bo3bo5bo3bo9bo5bo3bo7bo7bobobo9bo$20bo9bo9bob
+o7bo3bo7bo7bo3bo5bo3bo5bo3bo9bo5bo3bo7bo7bobobo8bo$20bo9b3o7b2o8b5o7bo
+7bo3bo6bobo6bo3bo9bo5b4o8bo7bobobo7bo$20bo9bo9bobo7bo3bo7bo7bo3bo7bo7b
+obobo5bo3bo5bo3bo7bo7bobobo6bo$20bo3bo5bo9bo2bo6bo3bo7bo8bobo8bo7bo2bo
+6bo3bo5bo3bo7bo7bobobo5bo$21b3o6b5o5bo3bo5bo3bo5b5o7bo9bo8b2obo6b3o6bo
+3bo7bo8bobo6b5o4$b3o6b7o$o3bo5bo5bo$o2b2o5bo5bo$obobo5bo2bo2bo$2o2bo5b
+o5bo$o3bo5bo5bo$b3o6b7o4$b2o17b7o3b7o$obo17bo5bo3bo5bo$2bo17bobo3bo3bo
+2bo2bo$2bo17bo2bo2bo3bo2bo2bo$2bo17bo5bo3bo5bo$2bo17bo5bo3bo5bo$5o15b
+7o3b7o4$b3o16b7o3b7o3b7o3b7o3b7o3b7o$o3bo15bo5bo3bo5bo3bo5bo3bo5bo3bo
+5bo3bo5bo$4bo15bobobobo3bo2bo2bo3bobo3bo3bobo3bo3bo2bo2bo3bo3bobo$3bo
+16bo2bo2bo3bob2o2bo3bo2bo2bo3bob2o2bo3bo2bo2bo3bo2bo2bo$2bo17bo5bo3bo
+5bo3bo2bo2bo3bo5bo3bo2bo2bo3bobo3bo$bo18bo5bo3bo5bo3bo5bo3bo5bo3bo5bo
+3bo5bo$5o15b7o3b7o3b7o3b7o3b7o3b7o4$b3o16b7o3b7o3b7o3b7o3b7o3b7o3b7o3b
+7o3b7o3b7o$o3bo15bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo
+3bo5bo$4bo15bobobobo3bo2bo2bo3bobo3bo3bob2o2bo3bo3bobo3bobobobo3bo2b2o
+bo3bo3bobo3bo3bobo3bobobobo$2b2o16bo2bo2bo3bob2o2bo3bo2b2obo3bob2o2bo
+3bo2b2obo3bob2o2bo3bo2bo2bo3bo2bo2bo3bo2b2obo3bo2bo2bo$4bo15bobo3bo3bo
+2bo2bo3bo2bo2bo3bo5bo3bo3bobo3bo5bo3bo2bo2bo3bob2o2bo3bo2bo2bo3bo2bo2b
+o$o3bo15bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo$b
+3o16b7o3b7o3b7o3b7o3b7o3b7o3b7o3b7o3b7o3b7o4$2b2o16b7o3b7o3b7o3b7o3b7o
+3b7o3b7o3b7o3b7o3b7o3b7o3b7o3b7o$bobo16bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3b
+o5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo$o2bo16bobobobo3bo2bo2bo
+3bo2b2obo3bob3obo3bob2o2bo3bobobobo3bob2o2bo3bob2o2bo3bo3bobo3bobobobo
+3bob3obo3bobo3bo3bob2o2bo$5o15bo2bo2bo3bob3obo3bob2o2bo3bob2o2bo3bo2bo
+2bo3bob2o2bo3bob2o2bo3bob2o2bo3bob3obo3bo2bo2bo3bo2bo2bo3bob2o2bo3bo2b
+o2bo$3bo16bobobobo3bo2bo2bo3bo3bobo3bo5bo3bob2o2bo3bobo3bo3bo2bo2bo3bo
+3bobo3bo2bo2bo3bob2o2bo3bo2bo2bo3bo2b2obo3bo2b2obo$3bo16bo5bo3bo5bo3bo
+5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo$3bo16b
+7o3b7o3b7o3b7o3b7o3b7o3b7o3b7o3b7o3b7o3b7o3b7o3b7o4$5o15b7o3b7o3b7o3b
+7o3b7o3b7o3b7o3b7o3b7o3b7o$o19bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5b
+o3bo5bo3bo5bo3bo5bo$4o16bo2bo2bo3bobobobo3bo2b2obo3bo3bobo3bob2o2bo3bo
+bo3bo3bobobobo3bob2o2bo3bob2o2bo3bobobobo$4bo15bob3obo3bo2b2obo3bob2o
+2bo3bo2b2obo3bob2o2bo3bob3obo3bob3obo3bob2o2bo3bob2o2bo3bob3obo$4bo15b
+o2b2obo3bobobobo3bobobobo3bob3obo3bob2o2bo3bob2o2bo3bobo3bo3bo2b2obo3b
+obobobo3bo2bo2bo$o3bo15bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo
+3bo5bo3bo5bo$b3o16b7o3b7o3b7o3b7o3b7o3b7o3b7o3b7o3b7o3b7o4$b3o16b7o3b
+7o3b7o3b7o3b7o3b7o$o3bo15bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo$o19bo2bo
+2bo3bobobobo3bo2b2obo3bo2b2obo3bobobobo3bob2o2bo$4o16bob3obo3bo2b2obo
+3bob3obo3bo2b2obo3bob3obo3bob3obo$o3bo15bob3obo3bob3obo3bobobobo3bob3o
+bo3bobobobo3bo2b2obo$o3bo15bo5bo3bo5bo3bo5bo3bo5bo3bo5bo3bo5bo$b3o16b
+7o3b7o3b7o3b7o3b7o3b7o4$5o15b7o3b7o$4bo15bo5bo3bo5bo$3bo16bo2b2obo3bob
+3obo$3bo16bob3obo3bo2b2obo$2bo17bob3obo3bob3obo$2bo17bo5bo3bo5bo$2bo
+17b7o3b7o4$b3o6b7o$o3bo5bo5bo$o3bo5bob3obo$b3o6bob3obo$o3bo5bob3obo$o
+3bo5bo5bo$b3o6b7o!
+'''
+
+
+
+         # This is the isotropy function's order:  NW,NN,NE,WW,ME,EE,SW,SS,SE
+         # This is the notationdict's order:     N,NE,E,SE,S,SW,W,NW
+
+#  So, a conversion function is necessary to use notationdict. 
+#   the conversion function takes a notationdict entry like "1,1,1,0,0,0,0,0" and
+#   returns "0 1 1 0 0 1 0 0 0"
+# and then isotropy can be run on that result.
+
+def convertorder (totalistic_num, notation_letter):
+    n = notationdict[totalistic_num+notation_letter]
+    return convertorderaux(n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7])
+
+def convertorderaux (x2, x3, x6, x9, x8, x7, x4, x1):
+    return [x1, x2, x3, x4, 0, x6, x7, x8, x9]
+
+def isotropy (x1, x2, x3, x4, x5, x6, x7, x8, x9):
+   return [[x1, x2, x3, x4, x5, x6, x7, x8, x9],
+             [x3, x2, x1, x6, x5, x4, x9, x8, x7],
+             [x7, x8, x9, x4, x5, x6, x1, x2, x3],
+             [x1, x4, x7, x2, x5, x8, x3, x6, x9],
+             [x9, x6, x3, x8, x5, x2, x7, x4, x1],
+             [x7, x4, x1, x8, x5, x2, x9, x6, x3],
+             [x9, x8, x7, x6, x5, x4, x3, x2, x1],
+             [x3, x6, x9, x2, x5, x8, x1, x4, x7]
+            ]
+
+# Jason Summers JustFriends weighting scheme:
+mNW = 1
+mNN = 2
+mNE = 4
+mWW = 128
+mEE = 8
+mSW = 64
+mSS = 32
+mSE = 16
+
+
+def create_isotropy_rows (input_isotropy_list, bs):
+  result = ""
+
+  for row in input_isotropy_list:
+    numterm = 0
+    if row[0] == 1:
+       numterm = numterm +  mNW
+   
+    if row[1] == 1:
+       numterm = numterm + mNN
+ 
+
+    if row[2] == 1:
+       numterm = numterm +  mNE
+
+    if row[3] == 1:
+       numterm = numterm + mWW
+   
+    if  row[5] == 1:
+       numterm = numterm + mEE
+ 
+    if  row[6] == 1:
+       numterm = numterm + mSW
+   
+
+    if  row[7] == 1:
+       numterm = numterm + mSS
+ 
+    if  row[8] == 1:
+       numterm = numterm + mSE
+    result = result + bs + str(numterm) + ", "
+  return result
+
+
+
+# The following function takes a rule element like B2a or B2-a and creates the appropriate ruleTable row.
+# Parameters:
+# bs is a string with one of two values "0," to indicate birth, and "1," to indicates survival.
+# totalistic_num is one character string "0" ... "8"
+# notation_letter is a one character string indicating Hensel's notation "a",
+# inverse_list is a list of notation letters for inverse notation
+
+def create_table_row(bs,totalistic_num, notation_letter, inverse_list):
+   result = ""
+   if totalistic_num == "0":
+     result = bs + "0, "   
+   elif totalistic_num == "8":
+     result =  bs + str(mNW+mNN+mNE+mWW+mEE+mSW+mSS+mSE) + ", "       
+   elif notation_letter != "none":
+      myinput = convertorder(totalistic_num, notation_letter)
+      result =  create_isotropy_rows(isotropy(myinput[0],myinput[1],myinput[2],myinput[3],myinput[4],myinput[5],myinput[6],myinput[7],myinput[8]), bs)
+
+
+   elif inverse_list != []:
+      for i in notationdict:
+         if not (i[1] in inverse_list) and i.startswith(totalistic_num):
+             myinput = convertorder(totalistic_num, i.replace(totalistic_num, ""))
+             result = result+ create_isotropy_rows(isotropy(myinput[0],myinput[1],myinput[2],myinput[3],myinput[4],myinput[5],myinput[6],myinput[7],myinput[8]), bs)   
+   else:
+      for i in notationdict:
+         if i.startswith(totalistic_num):
+             myinput = convertorder(totalistic_num, i.replace(totalistic_num, ""))
+             result = result + create_isotropy_rows(isotropy(myinput[0],myinput[1],myinput[2],myinput[3],myinput[4],myinput[5],myinput[6],myinput[7],myinput[8]), bs)   
+   return result
+
+
+
+import golly
+from glife.RuleTree import *
+
+
+CR = chr(13)
+LF = chr(10)
+
+
+
+
+rulestring = golly.getstring(dialog_box_message, "B2a/S12")
+
+
+# The following code cleans up the rulestring
+# so that it makes a valid and somewhat readable file name - eg "B2-a_S12.table"
+
+rulestring = rulestring.replace(" ", "")
+rulestring = rulestring.lower()
+rulestring = rulestring.replace("b", "B")
+rulestring = rulestring.replace("s", "S")
+
+
+# Now we check to see if there are decay states
+rulestring_parts = rulestring.split("/")
+rulestring_firstpart = rulestring_parts[0]
+rulestring_secondpart = rulestring_parts[1]
+if len(rulestring_parts) == 3:
+   rulestring_thirdpart = rulestring_parts[2]
+   rulestring_thirdpart = rulestring_thirdpart.replace("c", "")
+   decaystates = int(rulestring_thirdpart)
+   
+else:
+   decaystates = 0
+
+
+
+
+
+# The variable named rulestring will be parsed. 
+# The variable named rule_name will be the name of the new file.
+# Valid rules contain a slash character but filenames can not include slashes.
+
+rule_name = rulestring.replace("/", "_") 
+
+rulestring = rulestring_firstpart + "/" + rulestring_secondpart
+
+
+# To do:  Allow the user to specify their own name for a rule.
+
+#  The following code cleans up the rule string to
+#  make life easier for the parser.
+
+if rulestring.startswith("B") or rulestring.startswith("S"):
+    rulestring = rulestring.replace("/", "")
+else:
+    rulestring = rulestring.replace("/", "B")
+
+rulestring = rulestring + "\n" 
+
+
+
+
+# Now create the header for the rule table
+
+
+# Now that the header for the rule table has been created,
+# parse the rulestring, and add rows to the ruleTable as we go.
+
+# Lets say rule strings contain "rule elements", such as B2i, or B2-a, which are composed of:
+# 1) a birth or survival flag
+# 2) a "totalistic context" consisting of an integer between zero and 8
+# 3) a "notation_letter".   
+# 4) a flag for "positive" or "inverse" notation
+
+bs = "RS"                        # Use "mME" for survival or "BIRTH" for birth
+totalistic_context = "none"      # "none" will be replaced with "0" through
+                                 # "8" by the parser.
+last_totalistic_context = "none" # Lets the parser remember the previous 
+                                 # integer it encountered.
+notation_letter = "none"         # "none","a", "e", "i", etc.
+positive_or_inverse = "positive"
+inverse_list = []
+
+finalrulestring = ""
+for x in rulestring:
+  if x == "S" or x == "B" or x.isdigit() or x == "\n":
+     last_totalistic_context = totalistic_context   
+     totalistic_context = x                         
+     if last_totalistic_context != "none"  and notation_letter == "none":
+         finalrulestring = finalrulestring + create_table_row(bs, last_totalistic_context, "none",[])           
+     if last_totalistic_context != "none" and  positive_or_inverse == "inverse":
+         finalrulestring = finalrulestring + create_table_row(bs, last_totalistic_context, "none", inverse_list)
+     # Now lets get ready to move on to the next character.
+     notation_letter = "none"
+     inverse_list = []
+     positive_or_inverse = "positive"
+     if x == "S" or x == "B":
+         totalistic_context = "none"
+     if x == "S":
+         bs = "RS"
+     if x == "B":
+         bs = "RB"
+  elif x == "-":
+    positive_or_inverse = "inverse"
+  elif x in ["c", "a", "e", "k", "i", "v", "j", "y", "q", "r", "w", "t", "z"] and totalistic_context != "none":
+     if positive_or_inverse == "positive":
+        notation_letter = x
+        finalrulestring = finalrulestring + create_table_row(bs, totalistic_context, notation_letter, [])   
+     else:
+        notation_letter = x
+        inverse_list.append(x)
+
+
+finalrulestring = "NW1,NN2,NE4,WW128,ME0,EE8,SW64,SS32,SE16," + "HI" + str(decaystates) + ", " + finalrulestring
+
+golly.getstring('''
+Here is the Weighted Life version - you can copy it below:                                                                                                                                    .''', finalrulestring)
+
+
+#  Part 2:   This is WeightedLife->RuleTree
+
+from glife.RuleTree import *
+
+
+# Default values
+RS = []
+RB = []
+ME_weight = 0
+NW_weight = 1
+NN_weight = 1   
+NE_weight = 1
+WW_weight = 1     
+EE_weight = 1
+SW_weight = 1         
+SS_weight = 1
+SE_weight = 1
+
+CR = chr(13)
+LF = chr(10)
+   
+#name = "Temporary-rule-name"
+name =  rule_name
+
+#WeightedRulestring = golly.getstring(dialog_box_message, "Name=Temporary-rule-name NW4,NN1,NE0,WW1, ME0,EE4,SW0,SS4, SE1,HI0,RS1,RS6,RS8,RB5,RB6")
+
+WeightedRulestring = finalrulestring
+
+#WeightedRulestring = WeightedRulestring.replace("ame = ", "ame=")
+
+
+WeightedRulestring = WeightedRulestring.replace(" ", ",")
+WeightedRulestring = WeightedRulestring.replace(CR, ",")
+WeightedRulestring = WeightedRulestring.replace(LF, ",")
+
+for x in WeightedRulestring.split(","):
+   if x.startswith("Name=") or x.startswith("name="):
+      name = x.split("ame=")[1]
+   else:
+      x = x.upper()
+      if x.startswith("NW"):
+         NW_weight = int(x.split("NW")[1])
+      elif x.startswith("NN"):
+         NN_weight = int(x.split("NN")[1])
+      elif x.startswith("NE"):
+         NE_weight = int(x.split("NE")[1])
+      elif x.startswith("WW"):
+         WW_weight = int(x.split("WW")[1])
+      elif x.startswith("EE"):
+         EE_weight = int(x.split("EE")[1])
+      elif x.startswith("SW"):
+         SW_weight = int(x.split("SW")[1])
+      elif x.startswith("SS"):
+         SS_weight = int(x.split("SS")[1])
+      elif x.startswith("SE"):
+         SE_weight = int(x.split("SE")[1])
+      elif x.startswith("ME"):
+         ME_weight = int(x.split("ME")[1])
+      elif x.startswith("RS"):
+         RS.append(int(x.split("RS")[1]))
+      elif x.startswith("RB"):
+         RB.append(int(x.split("RB")[1]))
+      elif x.startswith("HI"):
+         n_states = (int(x.split("HI")[1]))
+
+if n_states < 3:
+      n_states = 2
+if n_states > 256:
+    n_states = 256
+if n_states > 8:
+    golly.getstring('''Ruletrees with more than 8 or so states can take a long time to compute. 
+
+Save your work before continuing. Once this script starts computing your rule,
+if you want to stop the calculation, you may have to abort Golly itelf.
+
+Choose the cancel option now to stop this script.''', "Proceed")
+
+n_neighbors = 8
+
+def transition_function(a):
+    # order for 8 neighbors is NW, NE, SW, SE, N, W, E, S, C
+
+    n = NW_weight*(a[0] == 1) + NE_weight*(a[1] == 1) + SW_weight*(a[2] == 1) + SE_weight*(a[3] == 1) + NN_weight*(a[4] == 1) + WW_weight*(a[5] == 1) + EE_weight*(a[6] == 1) + SS_weight*(a[7] == 1) + ME_weight*(a[8] == 1)
+
+    if  a[8] == 1 and n in RS:
+        return 1
+   
+    if a[8] == 0 and n in RB:
+        return 1
+
+    if a[8] > 0 and a[8] < (n_states - 1):
+        return a[8] + 1
+
+ 
+golly.show("Please wait while ruletree is being created...")
+
+# The code below this line is copied from make-ruletree.py
+
+try:
+
+    MakeRuleTreeFromTransitionFunction( n_states, n_neighbors, transition_function,
+                                        golly.getdir("rules")+name+".tree" )
+   
+    # use name.tree to create name.rule (with no icons);
+    # note that if name.rule already exists then we only replace the info in
+    # the @TREE section to avoid clobbering any other info added by the user
+    ConvertTreeToRule(name, n_states, [])
+   
+    golly.setalgo("RuleLoader")
+    golly.setrule(name)
+    golly.show("Created "+golly.getdir("rules")+name+".rule and switched to that rule.")
+
+except:
+    import sys
+    import traceback
+    exception, msg, tb = sys.exc_info()
+    golly.warn(\
+'''A problem was encountered with the supplied rule:'''+ '\n'.join(traceback.format_exception(exception, msg, tb)))
+    golly.exit()
+
+
