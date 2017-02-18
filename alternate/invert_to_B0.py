@@ -2,7 +2,6 @@
 # Author: Feng Geng(shouldsee.gem@gmail.com), Sep 2016.
 
 import golly as g
-from glife import *
 
 rule=g.getrule()
 rule=rule.split(':')[0]

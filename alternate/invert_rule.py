@@ -3,7 +3,7 @@
 # Author: Feng Geng(shouldsee.gem@gmail.com), May 2016.
 
 import golly as g
-from glife import *
+# from glife import *
 import numpy as np
 import hashlib
 

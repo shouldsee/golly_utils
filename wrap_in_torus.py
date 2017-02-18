@@ -7,9 +7,10 @@ from glife import *
 import numpy as np
 import hashlib
 
+pt=g.getcells(g.getrect());
 width=g.getstring('width of torus','200')
 rule=g.getrule()
-nrule=rule.split(':')[0]+':T{},0'.format(width);
+nrule=rule.split(':')[0]+':T{},512'.format(width);
 g.note(nrule);
 g.setrule(nrule);
 

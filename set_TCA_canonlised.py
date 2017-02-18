@@ -20,7 +20,11 @@ for a in rule:
 		alias+='s';
 		ps=0;
 	alias+=str((a)%9)
+if ps==1:
+	alias+='s';
+
 
 golly.setalgo("QuickLife")
 # golly.note(alias)
 golly.setrule(alias);
+golly.setclipstr('\n'+rnum);
