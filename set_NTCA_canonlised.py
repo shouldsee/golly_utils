@@ -1,8 +1,18 @@
 ## This script generate an ECA rule and emulate it on a torus of width 200. 
 ## Written by Feng (shouldsee.gem@gmail.com) Feb 2017.
 import golly
-rnum=golly.getstring('NTCA number','000000000060001c01c07f80f0');
 
+rnum=golly.getstring('NTCA number',golly.getclipstr());
+# asc=ord(rnum)
+lst=list([x=='-' for x in  rnum]);
+# golly.note(str(lst))
+# golly.note(rnum)
+# golly.note(str(~sum(lst)));
+if sum(lst)==0:
+	pass
+else:
+	rnum=rnum.split('/')[-1].split('-')[1]
+	# golly.note(str(lst2))
 r0=bin(int(rnum,16))[2:].zfill(102);
 # golly.note(str(len(r0)));
 # golly.setclipstr((r0));
@@ -71,4 +81,4 @@ alias=alias.rstrip('_');
 golly.setalgo("QuickLife")
 # golly.note(alias)
 golly.setrule(alias);
-golly.setclipstr('\n'+rnum);
+golly.setclipstr('\n'+alias);
