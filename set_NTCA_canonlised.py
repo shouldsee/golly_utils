@@ -80,5 +80,11 @@ alias=alias.rstrip('_');
 
 golly.setalgo("QuickLife")
 # golly.note(alias)
-golly.setrule(alias);
+curr=golly.getrule().split(':');
+if len(curr)>1:
+	curr=':'+curr[1];
+else:
+	curr='';
+
+golly.setrule(alias+curr);
 golly.setclipstr('\n'+alias);
