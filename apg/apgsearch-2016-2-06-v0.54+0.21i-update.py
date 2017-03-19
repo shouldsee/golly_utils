@@ -38,7 +38,7 @@
 #
 # By Adam P. Goucher, with contributions from Andrew Trevorrow, Tom Rokicki,
 # Nathaniel Johnston, Dave Greene, and Aidan Pierce.
-
+import isotropicRulegen
 import golly as g
 from glife import rect, pattern
 import time
@@ -2407,7 +2407,8 @@ state 2:  OFF
 class Soup:
 
     # The rule generator:
-    rg = RuleGenerator()
+    rg =isotropicRulegen.RuleGenerator()
+    rg =RuleGenerator()
 
     # Should we skip error-correction:
     skipErrorCorrection = False
@@ -12700,7 +12701,7 @@ def apg_main():
     
     if upload:
         # Sanitise input:
-        orignumber = max(orignumber, 10000)
+        orignumber = max(orignumber, 1)
         orignumber = min(orignumber, 100000000)
     number = orignumber
     initpos = 0

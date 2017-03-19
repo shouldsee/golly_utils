@@ -2,18 +2,29 @@
 ## Written by Feng (shouldsee.gem@gmail.com) Feb 2017.
 import golly
 
-rnum=golly.getstring('NTCA number',golly.getclipstr());
+rnum0=golly.getstring('NTCA number',golly.getclipstr());
 # asc=ord(rnum)
-lst=list([x=='-' for x in  rnum]);
 # golly.note(str(lst))
 # golly.note(rnum)
 # golly.note(str(~sum(lst)));
+lst=list([x=='-' for x in  rnum0]);
+
 if sum(lst)==0:
+	rnum=rnum0;
 	pass
 else:
-	rnum=rnum.split('/')[-1].split('-')[1]
+	rnum=rnum0.split('/')[-1].split('-')[1]
 	# golly.note(str(lst2))
-r0=bin(int(rnum,16))[2:].zfill(102);
+try:
+	r0=bin(int(rnum,16))[2:].zfill(102);
+except:
+	rnum0=rnum0.split('/')[-1];
+	lst=rnum0.split('.');
+	lstlen=list(len(x) for x in lst);
+	rnum=lst[lstlen.index(26)];
+	r0=bin(int(rnum,16))[2:].zfill(102);
+
+
 # golly.note(str(len(r0)));
 # golly.setclipstr((r0));
 # golly.note('copied')
