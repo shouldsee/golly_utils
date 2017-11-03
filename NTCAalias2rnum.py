@@ -16,26 +16,25 @@ class rule():
 	def __init__(dgt):
 		rule.s='0'*102;
 	def add(ali):
-	ali=ali.replace('/','').lower();
-	sold=ali[0];
+		ali=ali.replace('/','').lower();
+		sold=ali[0];
 
-	while True:
-		prime=ali[0];
-		ali=ali[1:];
-		for i,s in enumerate(ali):
-
-			if s.isdigit():
-				nold=s;
-				if s in ['0','8']:
-					conf=prime+s+'_';
-			elif s in ['b','s']:
-				ali=ali[i:];
+		while True:
+			prime=ali[0];
+			ali=ali[1:];
+			for i,s in enumerate(ali):
+				if s.isdigit():
+					nold=s;
+					if s in ['0','8']:
+						conf=prime+s+'_';
+				elif s in ['b','s']:
+					ali=ali[i:];
+					break
+				else:
+					conf=prime+nold+s;
+				rule.s[henselidx[conf]]='1';
+			if i==len(ali):
 				break
-			else:
-				conf=prime+nold+s;
-			rule.s[henselidx[conf]]='1';
-		if i==len(ali):
-			break
 		
 
 r1=rule(102);
