@@ -19,7 +19,7 @@ def replace(rectcoords,map):
 # 	default='0/1'
 
 	
-def replace_sel(IN):
+def replace_sel(IN,):
 	od=IN.split('/')
 	od = [int(x) for x in od]
 	sel=(g.getselrect()!=[])
@@ -31,6 +31,7 @@ def replace_sel(IN):
 			replace(g.getselrect(),od)
 		else:
 			replace(g.getrect(),od)
-default='0/1'
-IN=g.getstring('map?',default)
-replace_sel(IN)
+if __name__=='__builtin__':
+	default='0/1'
+	IN=g.getstring('map?',default)
+	replace_sel(IN)
