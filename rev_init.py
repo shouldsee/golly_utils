@@ -9,20 +9,21 @@ import random,re,os
 kb = KBs.kb_2dntca()
 # alias = golly.getrule()
 prefix,curr,suffix = KBs.interpret(golly.getrule().split(':'))
+prefix = 'rev_'
+
 
 rulestr = kb.alias2rulestr(curr)
-bitstr = KBs.hex2bin(rulestr,102)
-# assert KBs.bin2hex(bitstr)==rulestr
-bitlst = list(bitstr)
-
-idx =  random.randrange(102)
-flip = {'0':'1','1':'0'}
-bitlst[idx] = flip[bitlst[idx]]
-rulestr = KBs.bin2hex(''.join(bitlst))
+# bitstr = KBs.hex2bin(rulestr,102)
+# # assert KBs.bin2hex(bitstr)==rulestr
+# bitlst = list(bitstr)
+# idx =  random.randrange(102)
+# flip = {'0':'1','1':'0'}
+# bitlst[idx] = flip[bitlst[idx]]
+# rulestr = KBs.bin2hex(''.join(bitlst))
 alias = kb.rulestr2alias(rulestr)
 
 
-if prefix:
+if 1:
 	DIR=golly.getdir('rules')
 	fname = os.path.join(DIR,prefix+alias+'.rule')	
 	with open(fname,'w') as f:

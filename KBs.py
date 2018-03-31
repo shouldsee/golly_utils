@@ -18,6 +18,27 @@ convolve_int=lambda a,fir,method,**kwargs:scipy.ndimage.filters.convolve(a,fir,m
 
 hensellist=['b0_','b1c','b1e','b2a','b2c','b3i','b2e','b3a','b2k','b3n','b3j','b4a','s0_','s1c','s1e','s2a','s2c','s3i','s2e','s3a','s2k','s3n','s3j','s4a','b2i','b3r','b3e','b4r','b4i','b5i','s2i','s3r','s3e','s4r','s4i','s5i','b2n','b3c','b3q','b4n','b4w','b5a','s2n','s3c','s3q','s4n','s4w','s5a','b3y','b3k','b4k','b4y','b4q','b5j','b4t','b4j','b5n','b4z','b5r','b5q','b6a','s3y','s3k','s4k','s4y','s4q','s5j','s4t','s4j','s5n','s4z','s5r','s5q','s6a','b4e','b5c','b5y','b6c','s4e','s5c','s5y','s6c','b5k','b6k','b6n','b7c','s5k','s6k','s6n','s7c','b4c','b5e','b6e','s4c','s5e','s6e','b6i','b7e','s6i','s7e','b8_','s8_',];
 rca2ntca=[0, 1, 2, 3, 1, 4, 3, 5, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 13, 16, 15, 17, 14, 15, 18, 19, 20, 21, 22, 23, 2, 8, 6, 10, 3, 9, 7, 11, 24, 25, 26, 27, 25, 28, 27, 29, 14, 20, 18, 22, 15, 21, 19, 23, 30, 31, 32, 33, 31, 34, 33, 35, 1, 4, 8, 9, 36, 37, 38, 39, 3, 5, 10, 11, 38, 39, 40, 41, 13, 16, 20, 21, 42, 43, 44, 45, 15, 17, 22, 23, 44, 45, 46, 47, 8, 48, 49, 50, 38, 51, 52, 53, 25, 54, 55, 56, 57, 58, 59, 60, 20, 61, 62, 63, 44, 64, 65, 66, 31, 67, 68, 69, 70, 71, 72, 73, 2, 8, 24, 25, 8, 48, 25, 54, 6, 10, 26, 27, 49, 50, 55, 56, 14, 20, 30, 31, 20, 61, 31, 67, 18, 22, 32, 33, 62, 63, 68, 69, 6, 49, 26, 55, 10, 50, 27, 56, 26, 55, 74, 75, 55, 76, 75, 77, 18, 62, 32, 68, 22, 63, 33, 69, 32, 68, 78, 79, 68, 80, 79, 81, 3, 9, 25, 28, 38, 51, 57, 58, 7, 11, 27, 29, 52, 53, 59, 60, 15, 21, 31, 34, 44, 64, 70, 71, 19, 23, 33, 35, 65, 66, 72, 73, 10, 50, 55, 76, 40, 82, 59, 83, 27, 56, 75, 77, 59, 83, 84, 85, 22, 63, 68, 80, 46, 86, 72, 87, 33, 69, 79, 81, 72, 87, 88, 89, 1, 36, 8, 38, 4, 37, 9, 39, 8, 38, 49, 52, 48, 51, 50, 53, 13, 42, 20, 44, 16, 43, 21, 45, 20, 44, 62, 65, 61, 64, 63, 66, 3, 38, 10, 40, 5, 39, 11, 41, 25, 57, 55, 59, 54, 58, 56, 60, 15, 44, 22, 46, 17, 45, 23, 47, 31, 70, 68, 72, 67, 71, 69, 73, 4, 37, 48, 51, 37, 90, 51, 91, 9, 39, 50, 53, 51, 91, 82, 92, 16, 43, 61, 64, 43, 93, 64, 94, 21, 45, 63, 66, 64, 94, 86, 95, 9, 51, 50, 82, 39, 91, 53, 92, 28, 58, 76, 83, 58, 96, 83, 97, 21, 64, 63, 86, 45, 94, 66, 95, 34, 71, 80, 87, 71, 98, 87, 99, 3, 38, 25, 57, 9, 51, 28, 58, 10, 40, 55, 59, 50, 82, 76, 83, 15, 44, 31, 70, 21, 64, 34, 71, 22, 46, 68, 72, 63, 86, 80, 87, 7, 52, 27, 59, 11, 53, 29, 60, 27, 59, 75, 84, 56, 83, 77, 85, 19, 65, 33, 72, 23, 66, 35, 73, 33, 72, 79, 88, 69, 87, 81, 89, 5, 39, 54, 58, 39, 91, 58, 96, 11, 41, 56, 60, 53, 92, 83, 97, 17, 45, 67, 71, 45, 94, 71, 98, 23, 47, 69, 73, 66, 95, 87, 99, 11, 53, 56, 83, 41, 92, 60, 97, 29, 60, 77, 85, 60, 97, 85, 100, 23, 66, 69, 87, 47, 95, 73, 99, 35, 73, 81, 89, 73, 99, 89, 101];
+
+ntca2rca = [[0], [1, 4, 64, 256], [2, 8, 32, 128], [3, 6, 9, 36, 72, 192, 288, 384], [5, 65, 260, 320], [7, 73, 292, 448], [10, 34, 136, 160], [11, 38, 200, 416], [12, 33, 66, 96, 129, 132, 258, 264], [13, 37, 67, 193, 262, 328, 352, 388], [14, 35, 74, 137, 164, 224, 290, 392], [15, 39, 75, 201, 294, 420, 456, 480], [16], [17, 20, 80, 272], [18, 24, 48, 144], [19, 22, 25, 52, 88, 208, 304, 400], [21, 81, 276, 336], [23, 89, 308, 464], [26, 50, 152, 176], [27, 54, 216, 432], [28, 49, 82, 112, 145, 148, 274, 280], [29, 53, 83, 209, 278, 344, 368, 404], [30, 51, 90, 153, 180, 240, 306, 408], [31, 55, 91, 217, 310, 436, 472, 496], [40, 130], [41, 44, 104, 131, 134, 194, 296, 386], [42, 138, 162, 168], [43, 46, 139, 166, 202, 232, 418, 424], [45, 195, 360, 390], [47, 203, 422, 488], [56, 146], [57, 60, 120, 147, 150, 210, 312, 402], [58, 154, 178, 184], [59, 62, 155, 182, 218, 248, 434, 440], [61, 211, 376, 406], [63, 219, 438, 504], [68, 257], [69, 261, 321, 324], [70, 76, 100, 196, 259, 265, 289, 385], [71, 77, 263, 293, 329, 356, 449, 452], [78, 228, 291, 393], [79, 295, 457, 484], [84, 273], [85, 277, 337, 340], [86, 92, 116, 212, 275, 281, 305, 401], [87, 93, 279, 309, 345, 372, 465, 468], [94, 244, 307, 409], [95, 311, 473, 500], [97, 133, 268, 322], [98, 140, 161, 266], [99, 141, 165, 225, 270, 330, 354, 396], [101, 197, 269, 323, 326, 332, 353, 389], [102, 204, 267, 417], [103, 205, 271, 331, 358, 421, 460, 481], [105, 135, 300, 450], [106, 142, 163, 169, 172, 226, 298, 394], [107, 143, 167, 233, 302, 428, 458, 482], [108, 198, 297, 387], [109, 199, 301, 361, 364, 391, 451, 454], [110, 206, 230, 236, 299, 395, 419, 425], [111, 207, 303, 423, 459, 486, 489, 492], [113, 149, 284, 338], [114, 156, 177, 282], [115, 157, 181, 241, 286, 346, 370, 412], [117, 213, 285, 339, 342, 348, 369, 405], [118, 220, 283, 433], [119, 221, 287, 347, 374, 437, 476, 497], [121, 151, 316, 466], [122, 158, 179, 185, 188, 242, 314, 410], [123, 159, 183, 249, 318, 444, 474, 498], [124, 214, 313, 403], [125, 215, 317, 377, 380, 407, 467, 470], [126, 222, 246, 252, 315, 411, 435, 441], [127, 223, 319, 439, 475, 502, 505, 508], [170], [171, 174, 234, 426], [173, 227, 362, 398], [175, 235, 430, 490], [186], [187, 190, 250, 442], [189, 243, 378, 414], [191, 251, 446, 506], [229, 334, 355, 397], [231, 237, 363, 366, 399, 429, 462, 483], [238, 427], [239, 431, 491, 494], [245, 350, 371, 413], [247, 253, 379, 382, 415, 445, 478, 499], [254, 443], [255, 447, 507, 510], [325], [327, 333, 357, 453], [335, 359, 461, 485], [341], [343, 349, 373, 469], [351, 375, 477, 501], [365, 455], [367, 463, 487, 493], [381, 471], [383, 479, 503, 509], [495], [511]]
+
+#### Testing 
+# l = rca2ntca
+# l = l.tolist() if not isinstance(l,list) else l
+# assert ntca2rca==[[i for i,y in enumerate(l) if y==x]  for x in range(102)]
+
+
+####
+npmoore = np.reshape(range(9),(3,3,))
+gollymoore = [
+    [8,1,2],
+    [7,0,3],
+    [6,5,4]]
+order_gollymoore = np.argsort(np.ravel(gollymoore))
+tst = '012345678'
+out = '412587630'
+assert np.take(npmoore.ravel(),order_gollymoore).tolist()  == map(int,out)
+
+
 henseldict={'0': ['_'],
  '1': ['c', 'e'],
  '2': ['a', 'c', 'e', 'k', 'i', 'n'],
@@ -43,6 +64,68 @@ except:
     print('[WARN]Not finding data.py')
 
 
+def interpret(rule):
+    '''
+    Sanitise a golly rulestring
+    '''
+    curr = rule
+    if len(curr)==1:
+        curr+=['']
+    curr,suffix = curr
+
+    out = re.split('(rev_)',curr)
+    out = ['']*(2-len(out))+out
+    out = out[-2:]
+    # golly.note('%s'%out)
+    prefix,curr = out
+
+    return prefix,curr,suffix
+
+def ntca2moore(binstr):
+    '''
+    102-bit ntCA bitstring --> 512-bit mooreCA bitstring
+    '''
+    out = [None]*512
+    for i,res in enumerate(binstr):
+        for j in ntca2rca[i]:
+            out[j] = res
+    return ''.join(out)
+def table_variable_moore(s):
+    '''
+    List dummy variables (x8)
+    And concatenate to the input string
+    Useful for ruletables
+    '''
+    for i in range(8):
+            s += '''
+var a%d={0,2} ### curr0
+var b%d={1,3} ### curr1'''%(i,i)
+    s+='\n'
+    return s
+
+def flat2dict(lst):
+    '''
+    Group duplicate objects 
+    '''
+    d = {}
+    for i,val in enumerate(lst):
+        d[val] = d.get(val,[]) + [i]
+    return d
+def appendIndex(lst):
+    '''
+    Add index to duplicated objects
+    '''
+    d  = flat2dict(lst)
+    out = len(lst)* [None]
+    for k,pos in d.items():
+        vals = ['%s%d'%(k,i) for i in range(len(pos))]
+        for i,v in zip(pos,vals):
+            out[i]=v
+    return out
+if __name__=='__main__':
+    IN = ['a','b','a','a','b']
+    print IN
+    print addIndex(IN)
 
 
 def invert(s):
@@ -68,151 +151,7 @@ def add_all(s,prime,sold,neg=0):
             s[henselidx[conf]]=str(1-neg);
         except KeyError:
             pass
-class kb_2dntca():
-    def __init__(self):
-        self.familyname='2dntca'
-        pass
-    def rulestr2alias(self, rulestr):
-        OUT = ''
-        # rulestr =  '000000000060031c61c67f86a0'
-        r=hex2bin(rulestr,102);
-        r=r[::-1];
-        rule=[i for i,x in enumerate(r) if x=='1'];
-#         print r
-        lst = [hensellist[i] for i in rule]
-        lst.sort()
-        
-        #### group by B/S
-        d = collections.OrderedDict((('b',{}),('s',{}))) ### set default
-#         d = {'b':{},'s':{}}   ### set default
-        d.update(
-            {k:list(gp) for k,gp in itertools.groupby(lst, lambda x:x[0])}        
-        )
-        for k,lst in d.items():
-            d[k] = {k:list(gp) for k,gp in itertools.groupby(lst, lambda x:x[1])}
-            
-        for bs, dd in d.items():
-            OUT += bs
-            for k,lst in dd.items():
-                OUT += k + ''.join( conf[-1] for conf in lst)
-        OUT = OUT.replace('_','')
-        alias = OUT
-        return alias
 
-
-    def alias2rulestr(self,alias): 
-    # alias.replace('-','')
-        alias = re.sub('(\d-[a-zA-Z]+)',lambda o:invert(o.group()),alias)
-        alias = p_NOTnumletter.sub( '', alias).lower()
-        OUT = ['0']*102
-        d = collections.OrderedDict((('b',{}),('s',{}))) ### set default
-        # d.update()
-        # alias.split('s')
-        s = alias
-        lst = [x for x  in re.split("([bs])", s) if x]
-        if len(lst) % 2: #### Padding to even length
-            lst += ['']
-        d  = dict(ntuple(lst,2))
-        idxs = []
-        for k, v in d.items():
-            s = v
-            lst = [x for x in re.split("(\d)", s) if x]
-            L  = len(lst)
-            v_old = ''
-            for i,v in enumerate(lst):
-                if v.isdigit():
-                    if v_old.isdigit():
-                        idx = [henselidx.get( k + v_old + c,None) for c in subconf]
-                        idxs.extend(idx)
-                    if i + 1 == L:
-                        idx = [henselidx.get( k + v + c,None) for c in subconf]
-                        idxs.extend(idx)
-                    num = v
-                else:
-                    idx = [henselidx[ k + num + v_i]  for v_i in v ]
-                    idxs.extend(idx)
-                v_old = v
-        idxs = [ x for x in idxs if x is not None] 
-        for i in idxs:
-            if not i is None:
-                OUT[i] = '1'
-        bitstr=''.join(OUT[::-1]);
-        hexstr=hex(int(bitstr,2)).lstrip('0x').rstrip('L').zfill(26)
-        return hexstr
-#     def alias2rulestr(self, alias):
-#         alias = p_NOTnumletter.sub( '', alias).lower()
-#         OUT = ['0']*102
-#         # print alias
-#         d = collections.OrderedDict((('b',{}),('s',{}))) ### set default
-#         # d.update()
-#         # alias.split('s')
-#         s = alias
-#         lst = [x for x  in re.split("([bs])", s) if x]
-#         if len(lst) % 2: #### Padding to even length
-#             lst += ['']
-#         d  = dict(ntuple(lst,2))
-#         idxs = []
-#         for k, v in d.items():
-#             s = v
-#             lst = [x for x in re.split("(\d)", s) if x]
-#             L  = len(lst)
-#             v_old = ''
-#             for i,v in enumerate(lst):
-#                 if v.isdigit():
-#                     if v_old.isdigit():
-#                         idx = [henselidx.get( k + v_old + c,None) for c in subconf]
-#                         idxs.extend(idx)
-#                     if i + 1 == L:
-#                         idx = [henselidx.get( k + v + c,None) for c in subconf]
-#                         idxs.extend(idx)
-#                     num = v
-#                 else:
-#                     idx = [henselidx[ k + num + v_i]  for v_i in v ]
-#                     idxs.extend(idx)
-#                 v_old = v
-#         idxs = [ x for x in idxs if x is not None] 
-#         for i in idxs:
-#             if not i is None:
-#                 OUT[i] = '1'
-#         bitstr=''.join(OUT[::-1]);
-#         hexstr=hex(int(bitstr,2)).lstrip('0x').rstrip('L').zfill(26)
-#         return hexstr
-    def rulestr2adv(self,rulestr):
-        ruleprj=np.array( 
-            list(hex2bin(rulestr,102)[::-1]),
-            np.int);
-        adv = self.bin2adv(ruleprj)
-#         ruleprj=np.array(list(hex2bin(rulestr,102)[::-1]));
-#         fir=(2**np.arange(0,9)).reshape([1,3,3]);
-#         pj=rca2ntca;
-#         def adv(a,horizon):
-#             return ruleprj[pj[convolve_int(a,fir,'wrap').astype(np.int)]]
-#         # adv=lambda a, horizon: ruleprj[pj[convolve_int(a,fir,'wrap').astype(np.int)]]
-        return adv 
-    def conv(self,a):
-        fir=(2**np.arange(0,9)).reshape([1,3,3]);
-        pj=rca2ntca;
-        return pj[convolve_int(a,fir,'wrap').astype(np.int)]
-    def bin2adv(self, ruleprj):
-        if isinstance(ruleprj,str):
-            ruleprj = list(ruleprj)
-        ruleprj = np.array(ruleprj,np.int)
-        def adv(a,horizon=0):
-            return ruleprj[self.conv(a)]
-        return adv
-    def rstr(self,callback=(lambda x:bin2hex(x).zfill(26)) ):
-        r = '{:0102b}'.format(random.randrange(2**102))
-        if callback is not None:
-            r = callback(r)
-        return r
-    def randadv(self):
-        return self.bin2adv(self.rstr(None))
-    def bulk_rstr(self,seed = 0,bsize=2**18,**kwargs):
-        random.seed(seed)
-        lst = [{'family':self.familyname,
-                'rulestr':self.rstr(**kwargs)} for x in range(bsize)]
-        return lst    
-    
     
 class kb_2dtca():
 #     def rulestr2alias(rulestr):
@@ -265,8 +204,9 @@ class CA_sys():
         self.rulestr2alias()
 #         self.
         if rdf==None:
-            self.rdf=lambda:(np.random.random(self.siz)<=0.5).astype(np.int);
-
+#            self.rdf=lambda:(np.random.random(self.siz)<=0.5).astype(np.int);
+            self.rdf = lambda p=0.5:(np.random.random(self.siz)<=p).astype(np.int);
+            
     def change_size(self,dimsiz=None):
         if dimsiz==None:
             dimsiz=self.dimsiz;
@@ -293,9 +233,7 @@ class CA_sys():
         return conf
 #     def change_adv(familyname,rulestr):
 
-kb=kb_2dntca();
-# kb.rulestr2alias('000000000060031c61c67f86a0')
-kb.alias2rulestr('b3/s23')
+
 
     
 # @function
@@ -434,20 +372,21 @@ def lview(self):
     return uri
 
 
-def sample(self,ini=None,adv = None):
-    '''
-    Sample an iterator ('CA_sys' object)
-    '''
-    if adv is None:
-        adv = self.adv
-    if ini is None:
-        ini=self.rdf().astype(int)
-    avc = ini
-    hist = np.zeros((self.hmax,)+avc.shape,dtype=np.int)
-    for i in range(self.hmax):
-        hist[i]=avc
-        avc=(adv(avc)) 
-    return hist
+# def sample(self,ini=None,adv = None):
+#     '''
+#     Sample an iterator ('CA_sys' object)
+#     '''
+#     if adv is None:
+#         adv = self.adv
+#     if ini is None:
+#         ini=self.rdf().astype(int)
+#     avc = ini
+#     hist = np.zeros((self.hmax,)+avc.shape,dtype=np.int)
+#     for i in range(self.hmax):
+#         hist[i]=avc
+#         avc=(adv(avc)) 
+#     return hist
+
 def fill_ber(arr,p=0.5):
     '''
     Create bernouli using shape of arr
@@ -540,6 +479,224 @@ def showsptime(arr,ax=None,**kwargs):
     if ax is None:
         fig,ax = plt.subplots(1,1,figsize=[12,4])    
     return ax.pcolormesh(sflatten(arr),**kwargs)
+
+
+class kb_2dntca():
+    def __init__(self):
+        self.familyname='2dntca'
+        pass
+    def rulestr2alias(self, rulestr):
+        '''
+        Convert a 26-digit hexadecimal rulestring to a B/S alias
+        '''
+        OUT = ''
+        # rulestr =  '000000000060031c61c67f86a0'
+        r=hex2bin(rulestr,102);
+        r=r[::-1];
+        rule=[i for i,x in enumerate(r) if x=='1'];
+#         print r
+        lst = [hensellist[i] for i in rule]
+        lst.sort()
+        
+        #### group by B/S
+        d = collections.OrderedDict((('b',{}),('s',{}))) ### set default
+#         d = {'b':{},'s':{}}   ### set default
+        d.update(
+            {k:list(gp) for k,gp in itertools.groupby(lst, lambda x:x[0])}        
+        )
+        for k,lst in d.items():
+            d[k] = {k:list(gp) for k,gp in itertools.groupby(lst, lambda x:x[1])}
+            
+        for bs, dd in d.items():
+            OUT += bs
+            for k,lst in dd.items():
+                OUT += k + ''.join( conf[-1] for conf in lst)
+        OUT = OUT.replace('_','')
+        alias = OUT
+        return alias
+
+
+    def alias2rulestr(self,alias): 
+        '''
+        Convert a B/S alias to a 26-digit hexadecimal rulestring
+        '''
+    # alias.replace('-','')
+        alias = re.sub('(\d-[a-zA-Z]+)',lambda o:invert(o.group()),alias)
+        alias = p_NOTnumletter.sub( '', alias).lower()
+        OUT = ['0']*102
+        d = collections.OrderedDict((('b',{}),('s',{}))) ### set default
+        # d.update()
+        # alias.split('s')
+        s = alias
+        lst = [x for x  in re.split("([bs])", s) if x]
+        if len(lst) % 2: #### Padding to even length
+            lst += ['']
+        d  = dict(ntuple(lst,2))
+        idxs = []
+        for k, v in d.items():
+            s = v
+            lst = [x for x in re.split("(\d)", s) if x]
+            L  = len(lst)
+            v_old = ''
+            for i,v in enumerate(lst):
+                if v.isdigit():
+                    if v_old.isdigit():
+                        idx = [henselidx.get( k + v_old + c,None) for c in subconf]
+                        idxs.extend(idx)
+                    if i + 1 == L:
+                        idx = [henselidx.get( k + v + c,None) for c in subconf]
+                        idxs.extend(idx)
+                    num = v
+                else:
+                    idx = [henselidx[ k + num + v_i]  for v_i in v ]
+                    idxs.extend(idx)
+                v_old = v
+        idxs = [ x for x in idxs if x is not None] 
+        for i in idxs:
+            if not i is None:
+                OUT[i] = '1'
+        bitstr=''.join(OUT[::-1]);
+        hexstr=hex(int(bitstr,2)).lstrip('0x').rstrip('L').zfill(26)
+        return hexstr
+    def rulestr2adv(self,rulestr):
+        ruleprj=np.array( 
+            list(hex2bin(rulestr,102)[::-1]),
+            np.int);
+        adv = self.bin2adv(ruleprj)
+        return adv 
+    def conv(self,IN):
+        '''
+        Convovle using non-totalistic isotropic filter
+        '''
+        fir=(2**np.arange(0,9)).reshape([1,3,3]);
+        pj=rca2ntca;
+        return pj[convolve_int(IN,fir,'wrap').astype(np.int)]
+    def bin2adv(self, ruleprj):
+        if isinstance(ruleprj,str):
+            ruleprj = list(ruleprj)
+        ruleprj = np.array(ruleprj,np.int)
+        def adv(a,horizon=0):
+            return ruleprj[self.conv(a)]
+        return adv
+    def rstr(self,callback=(lambda x:bin2hex(x).zfill(26)) ):
+        r = '{:0102b}'.format(random.randrange(2**102))
+        if callback is not None:
+            r = callback(r)
+        return r
+    def randadv(self):
+        return self.bin2adv(self.rstr(None))
+    def bulk_rstr(self,seed = 0,bsize=2**18,**kwargs):
+        random.seed(seed)
+        lst = [{'family':self.familyname,
+                'rulestr':self.rstr(**kwargs)} for x in range(bsize)]
+        return lst
+    def rulestr2table(self,rstr):
+        s = '''@RULE {alias:}
+@TABLE
+n_States:2
+neighborhood:Moore
+symmetries:rotate4reflect
+'''.format(alias=self.rulestr2alias(rstr))
+        binstr=hex2bin(rstr,102)[::-1]
+        for i,bit in enumerate(binstr):
+    #         if bit is '1':
+            conf = base2bin(str(ntca2rca[i]),10,9)            
+            conf = np.take(list(conf),order_gollymoore)
+            line = ''.join(conf.tolist()+[bit])
+    #             conf = ''.join([conf[order_gollymoore[x]] for x in range(len(conf))])
+    #         print conf
+            s+='%s\n'%line
+        return s    
+    def rulestr2table(self,rstr,reverse=0):
+        nState = 4 if reverse else 2
+        alias = self.rulestr2alias(rstr)
+        if reverse:
+            alias = 'rev_%s'%alias
+        s = '''@RULE {alias:}
+@TABLE
+n_States:{nState}
+neighborhood:Moore
+symmetries:rotate4reflect
+'''.format(alias=alias,
+              nState=nState)
+        if reverse:
+            s=table_variable_moore(s)
+        s += '#>>>TAB<<<\n'
+
+        d = {'0':'a','1':'b'}
+        binstr=hex2bin(rstr,102)[::-1]
+        for i,bit in enumerate(binstr):
+            conf = base2bin(str(ntca2rca[i][0]),10,9)            
+            conf = np.take(list(conf),order_gollymoore).tolist()
+            if not reverse:
+                line = ''.join(conf+[bit])
+                s+='%s\n'%line
+            else:       
+                c_cur = int(conf[0])
+
+                for c_his in [0,1]:
+    #                 print c_cur+2*c_his
+                    #### Use history and proposed bit to calculate next state
+                    c_nex = int(bit) ^ int(c_his)  
+                    var = [d.get(x) for x in conf[1:]]
+
+                    lst = [str(c_cur+2*c_his)] + appendIndex(var) +[str(c_nex+2*c_cur)]
+                    line = ','.join(  lst)
+                    s+='%s\n'%line
+    #             line = conf
+        return s    
+    
+class kb_eca():
+    def conv(self,IN,method):
+        '''
+        Convolve using 1D universal (non-totalistic non-isotropic) filter
+        '''
+        fir = (2**np.arange(3)).reshape([1,3,1])
+        return convolve_int(IN,fir,method)
+    def rstr(self,):
+        pass
+    def bin2adv(self,rulebin,method='wrap'):
+        if isinstance(rulebin,str):
+            rulebin = list(rulebin)
+        rulebin = np.array(rulebin,np.int)
+        def adv(a,horizon=0,method=method):
+            return rulebin[self.conv(a,method=method)]
+        return adv
+    def rulestr2alias(self,rstr):
+        assert len(rstr)==8
+        alias = int(rstr,2)
+        return str(alias)
+    def alias2rulestr(self,alias):
+        rstr = base2bin(alias,10,8)[::-1]
+        return rstr
+    def rulestr2adv(self,rstr):
+        return self.bin2adv(rstr)
+
+kb=kb_2dntca();
+# kb.rulestr2alias('000000000060031c61c67f86a0')
+kb.alias2rulestr('b3/s23')
+
+def sample(self,ini=None,adv = None,T = None):
+    '''
+    Sample an iterator ('CA_sys' object)
+    '''
+    if T is None:
+        T = self.hmax
+    if adv is None:
+        adv = self.adv
+    if ini is None:
+        ini=self.rdf().astype(int)
+    avc = ini
+    hist = np.zeros((T+1,)+avc.shape,dtype=np.int)
+    for i in range(T+1):
+        hist[i]=avc
+        avc=(adv(avc)) 
+    return hist
+def showsptime(arr,ax=None,**kwargs):
+    if ax is None:
+        fig,ax = plt.subplots(1,1,figsize=[12,4])   
+    return ax.pcolormesh(sflatten(arr),**kwargs)
+
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import IPython.display as ipd
