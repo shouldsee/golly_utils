@@ -64,22 +64,6 @@ except:
     print('[WARN]Not finding data.py')
 
 
-def interpret(rule):
-    '''
-    Sanitise a golly rulestring
-    '''
-    curr = rule
-    if len(curr)==1:
-        curr+=['']
-    curr,suffix = curr
-
-    out = re.split('(rev_)',curr)
-    out = ['']*(2-len(out))+out
-    out = out[-2:]
-    # golly.note('%s'%out)
-    prefix,curr = out
-
-    return prefix,curr,suffix
 
 def ntca2moore(binstr):
     '''
@@ -186,22 +170,31 @@ class kb_2dtca():
         hex2bin(rulestr)
                                        
 class CA_sys():
-    def __init__(self,familyname = None,rulestr=None,dimsiz=None,adv=None,rdf=None):
+    def __init__(self,familyname = None,rulestr=None,alias=None,dimsiz=None,adv=None,rdf=None):
 #         siz=[600,100,400];
         if dimsiz is None:
             dimsiz = [128,128,32**2]
-        if rulestr is None:
-            rulestr = '0c83820e0060061941946a68f0'
         if familyname is None:
             familyname = '2dntca'
         self.familyname=familyname;
-        self.rulestr=rulestr;
+        self.family=eval('kb_%s()'%self.familyname);
+        if alias is None:
+            if rulestr is None:
+                rulestr = {'2dntca':'0c83820e0060061941946a68f0',
+                          'eca':'01110110', #### rule 110
+                          }.get(self.familyname,'I dont know the rulestring')
+            self.rulestr = rulestr
+            self.rulestr2alias()
+            pass
+        else:
+            self.alias = alias
+            self.alias2rulestr()
+            pass
+        self.alias = alias
         self.adv=adv;
         self.dimsiz=dimsiz;
         self.change_size();
 #         self.family = globals().get('familyname')
-        self.family=eval('kb_%s()'%self.familyname);
-        self.rulestr2alias()
 #         self.
         if rdf==None:
 #            self.rdf=lambda:(np.random.random(self.siz)<=0.5).astype(np.int);
@@ -481,9 +474,10 @@ def showsptime(arr,ax=None,**kwargs):
     return ax.pcolormesh(sflatten(arr),**kwargs)
 
 
-class kb_2dntca():
+class kb_2dntca(object):
+    familyname='2dntca'
     def __init__(self):
-        self.familyname='2dntca'
+        #self.familyname='2dntca'
         pass
     def rulestr2alias(self, rulestr):
         '''
@@ -646,7 +640,8 @@ symmetries:rotate4reflect
     #             line = conf
         return s    
     
-class kb_eca():
+class kb_eca(object):
+    familyname='eca'
     def conv(self,IN,method):
         '''
         Convolve using 1D universal (non-totalistic non-isotropic) filter
@@ -663,7 +658,7 @@ class kb_eca():
             return rulebin[self.conv(a,method=method)]
         return adv
     def rulestr2alias(self,rstr):
-        assert len(rstr)==8
+        assert len(rstr)==8,'rulestring=%s'%rstr
         alias = int(rstr,2)
         return str(alias)
     def alias2rulestr(self,alias):
@@ -671,27 +666,35 @@ class kb_eca():
         return rstr
     def rulestr2adv(self,rstr):
         return self.bin2adv(rstr)
+#### Testing kb_eca functionality
+if __name__=='__main__':
+    kb  = kb_eca()
+    rstr = '11001010'
+    alias = kb.rulestr2alias(rstr)
+    print 'alias of mapper %s:'%rstr,alias
+    print 'rulestring of rule 110:',kb.alias2rulestr('110')
 
-kb=kb_2dntca();
-# kb.rulestr2alias('000000000060031c61c67f86a0')
-kb.alias2rulestr('b3/s23')
+    
+    kb=kb_2dntca();
+    # kb.rulestr2alias('000000000060031c61c67f86a0')
+    kb.alias2rulestr('b3/s23')
 
-def sample(self,ini=None,adv = None,T = None):
-    '''
-    Sample an iterator ('CA_sys' object)
-    '''
-    if T is None:
-        T = self.hmax
-    if adv is None:
-        adv = self.adv
-    if ini is None:
-        ini=self.rdf().astype(int)
-    avc = ini
-    hist = np.zeros((T+1,)+avc.shape,dtype=np.int)
-    for i in range(T+1):
-        hist[i]=avc
-        avc=(adv(avc)) 
-    return hist
+# def sample(self,ini=None,adv = None,T = None):
+#     '''
+#     Sample an iterator ('CA_sys' object)
+#     '''
+#     if T is None:
+#         T = self.hmax
+#     if adv is None:
+#         adv = self.adv
+#     if ini is None:
+#         ini=self.rdf().astype(int)
+#     avc = ini
+#     hist = np.zeros((T+1,)+avc.shape,dtype=np.int)
+#     for i in range(T+1):
+#         hist[i]=avc
+#         avc=(adv(avc)) 
+#     return hist
 def showsptime(arr,ax=None,**kwargs):
     if ax is None:
         fig,ax = plt.subplots(1,1,figsize=[12,4])   
@@ -722,3 +725,47 @@ def animate(arr,html = 1,nFrame=20):
     if html:
         ani = ipd.HTML(ani.to_html5_video())
     return ani
+
+def sample(self,t=None,ini=None,adv = None,T = None):    
+    '''
+    Sample an iterator ('CA_sys' object)
+    '''
+    if t is None:
+        t = {'r2dntca':2,}.get(self.family.familyname,1)
+    if T is None:
+        T = self.hmax
+    if adv is None:
+        adv = self.adv
+    if ini is None:
+        if t>=2:
+            ini = np.array([self.rdf().astype(int)]*t)
+        else:
+            ini=self.rdf().astype(int)
+    avc = ini
+    hist = np.zeros((T+1+t-1,)+avc.shape[-3:],dtype=np.int)
+    
+    ###### !!!Be very careful with the indexing in this loop!!!
+    for i in range(0,T+1):
+        hist[i] = avc[0] if t>=2 else avc
+        avc=(adv(avc)) 
+    return hist
+
+class kb_r2dntca(kb_2dntca):
+    '''
+    Reversible 2dntca
+    '''
+    familyname='r2dntca'
+
+    def bin2adv(self, ruleprj):
+        if isinstance(ruleprj,str):
+            ruleprj = list(ruleprj)
+        ruleprj = np.array(ruleprj,np.int)
+        def adv(a,horizon=0):
+            old = a[0]
+            curr = a[1]
+            new  = ruleprj[self.conv(curr)]^old
+            return np.array([curr,new])
+                              
+        return adv
+
+        
